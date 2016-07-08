@@ -52,7 +52,7 @@ const tb_fastnews = "fastnews"
 
 const tb_jinshinews = "jinshinews"
 
-func GetNews(id string, limit string) map[string]interface{} {
+func GetNews(id string, limit string, direction string) map[string]interface{} {
 	jsdata := make(map[string]interface{})
 	fmt.Println("GetNews id is", id)
 	if dbnews == nil {
@@ -69,10 +69,18 @@ func GetNews(id string, limit string) map[string]interface{} {
 	if limit == "" {
 		limit = "30"
 	}
+	if direction == "" {
+		direction = "0"
+	}
 	if id == "" || id == "0" {
 		rows, err = dbnews.Query("SELECT * from "+tb_fastnews+" ORDER BY gid DESC LIMIT ?", limit)
 	} else {
-		rows, err = dbnews.Query("SELECT * from (SELECT * from "+tb_fastnews+" WHERE  gid >?  LIMIT ?) as t ORDER BY gid DESC ", id, limit)
+		if direction == "0" {
+			rows, err = dbnews.Query("SELECT * from (SELECT * from "+tb_fastnews+" WHERE  gid >?  LIMIT ?) as t ORDER BY gid DESC ", id, limit)
+		} else {
+			rows, err = dbnews.Query("SELECT * from "+tb_fastnews+" WHERE  gid <?  ORDER BY gid DESC LIMIT ?", id, limit)
+		}
+
 	}
 	if err == nil {
 		var id, gid int
@@ -97,9 +105,9 @@ func GetNews(id string, limit string) map[string]interface{} {
 	}
 	return jsdata
 }
-func GetNewsInfo(strtype string, strdatetime string, limit string) map[string]interface{} {
+func GetNewsInfo(strtype string, strdatetime string, limit string, direction string) map[string]interface{} {
 	jsdata := make(map[string]interface{})
-	fmt.Println("GetNewsinfo")
+	fmt.Println("GetNewsinfo type is ", strtype, " time is ", strdatetime, " direction is ", direction)
 	if dbnews == nil {
 		fmt.Println("GetNewsinfo connect datebase")
 		dbnews, _ = sql.Open("mysql", db_str)
@@ -114,14 +122,19 @@ func GetNewsInfo(strtype string, strdatetime string, limit string) map[string]in
 	if limit == "" {
 		limit = "30"
 	}
+	if direction == "" {
+		direction = "0"
+	}
 	if strtype == "" && strdatetime == "" {
 		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" ORDER BY time DESC LIMIT ?", limit)
 	} else if strtype != "" && strdatetime == "" {
 		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE type = ? ORDER BY time DESC LIMIT ?", strtype, limit)
 	} else if strtype == "" && strdatetime != "" {
 		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time > ? ORDER BY time DESC LIMIT ?", strdatetime, limit)
-	} else if strtype != "" && strdatetime != "" {
+	} else if strtype != "" && strdatetime != "" && direction == "0" {
 		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time > ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
+	} else if strtype != "" && strdatetime != "" && direction != "0" {
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time < ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
 	}
 	if err == nil {
 		var str_type, str_name, str_articid, str_title, str_abstract, str_content, str_contenthtml, str_time, str_autor, str_imgname, str_imgurl string
