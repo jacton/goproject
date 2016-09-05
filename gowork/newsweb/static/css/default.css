@@ -1,0 +1,59 @@
+/***
+Default theme
+***/
+/***
+Reset and overrides  
+***/
+
+
+body {
+  background-color: #3d3d3d !important;
+}
+
+.page-container {
+  margin: 0px;
+  padding: 0px;
+  align-content:center;
+  margin-top: 42px;  
+}
+
+.page-content {  
+  margin-top: 0px;   
+  padding: 0px;
+  background-color: #fff; 
+  margin-left: 225px; 
+  margin-right: 225px;  
+  margin-top: 0px;
+  min-height: 760px; 
+}
+
+
+
+/***
+For tablets and phones
+***/
+@media (max-width:978px) { 
+	
+	/***
+	Page container
+	***/
+	.page-container {
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.page-header-fixed .page-container {
+		margin-top: 0px !important;
+	}
+
+	/***
+  	Page content
+  	***/
+  	.page-content {
+  		margin: 0px !important;
+  		padding: 0px !important;  		
+		min-height: 760px; 
+  	}
+}
+
+
