@@ -152,6 +152,7 @@ func GetNewsInfo(strtype string, strdatetime string, limit string, direction str
 			tmpnews.Articid = str_articid
 			tmpnews.Title = str_title
 			tmpnews.Abstract = str_abstract
+			tmpnews.Detailurl = beego.AppConfig.String("tb_jinshinews_url") + str_articid
 			//tmpnews.Content = str_content
 			//tmpnews.Contenthtml = str_contenthtml
 			tmpnews.Datetime = str_time
@@ -204,7 +205,6 @@ func GetNewsInfoById(strid string) map[string]interface{} {
 			tmpnews.Autor = str_autor
 			tmpnews.Imgname = str_imgname
 			tmpnews.Imgurl = str_imgurl
-			tmpnews.Detailurl = beego.AppConfig.String("tb_jinshinews_url") + str_articid
 			arrNewsInfo = append(arrNewsInfo, tmpnews)
 		}
 		jsdata["retcode"] = ret_success
