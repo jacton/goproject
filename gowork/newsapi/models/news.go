@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"strconv"
 	//"time"
+	"github.com/astaxie/beego"
 )
 
 const (
@@ -19,9 +20,18 @@ var (
 	dbnews *sql.DB
 )
 
+var db_str string
+
+var tb_fastnews string
+
+var tb_jinshinews string
+
 func init() {
+	db_str = beego.AppConfig.String("db_username") + ":" + beego.AppConfig.String("db_password") + "@/" + beego.AppConfig.String("db_name") + "?charset=utf8"
+	tb_fastnews = beego.AppConfig.String("tb_fastnews")
+	tb_jinshinews = beego.AppConfig.String("tb_jinshinews")
 	dbnews, _ = sql.Open("mysql", db_str)
-	fmt.Println("init modle")
+	fmt.Println("init models")
 }
 
 type News struct {
@@ -40,17 +50,12 @@ type NewsInfo struct {
 	Abstract    string
 	Content     string
 	Contenthtml string
+	Detailurl   string
 	Datetime    string
 	Autor       string
 	Imgname     string
 	Imgurl      string
 }
-
-const db_str = "root:123456@/news?charset=utf8"
-
-const tb_fastnews = "fastnews"
-
-const tb_jinshinews = "jinshinews"
 
 func GetNews(id string, limit string, direction string) map[string]interface{} {
 	jsdata := make(map[string]interface{})
@@ -199,6 +204,7 @@ func GetNewsInfoById(strid string) map[string]interface{} {
 			tmpnews.Autor = str_autor
 			tmpnews.Imgname = str_imgname
 			tmpnews.Imgurl = str_imgurl
+			tmpnews.Detailurl = beego.AppConfig.String("tb_jinshinews_url") + str_articid
 			arrNewsInfo = append(arrNewsInfo, tmpnews)
 		}
 		jsdata["retcode"] = ret_success
