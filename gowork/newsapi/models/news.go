@@ -87,6 +87,7 @@ func GetNews(id string, limit string, direction string) map[string]interface{} {
 		}
 
 	}
+	defer rows.Close()
 	if err == nil {
 		var id, gid int
 		var str_title, str_content, str_time, str_color string
@@ -105,6 +106,7 @@ func GetNews(id string, limit string, direction string) map[string]interface{} {
 		jsdata["retmsg"] = "success"
 		jsdata["data"] = arrNews
 	} else {
+		fmt.Println(err)
 		jsdata["retcode"] = ret_fail
 		jsdata["retmsg"] = "fail"
 	}
@@ -131,21 +133,22 @@ func GetNewsInfo(strtype string, strdatetime string, limit string, direction str
 		direction = "0"
 	}
 	if strtype == "" && strdatetime == "" {
-		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" ORDER BY time DESC LIMIT ?", limit)
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" ORDER BY time DESC LIMIT ?", limit)
 	} else if strtype != "" && strdatetime == "" {
-		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE type = ? ORDER BY time DESC LIMIT ?", strtype, limit)
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" WHERE type = ? ORDER BY time DESC LIMIT ?", strtype, limit)
 	} else if strtype == "" && strdatetime != "" {
-		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time > ? ORDER BY time DESC LIMIT ?", strdatetime, limit)
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" WHERE time > ? ORDER BY time DESC LIMIT ?", strdatetime, limit)
 	} else if strtype != "" && strdatetime != "" && direction == "0" {
-		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time > ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" WHERE time > ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
 	} else if strtype != "" && strdatetime != "" && direction != "0" {
-		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" WHERE time < ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
+		rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" WHERE time < ? and type=? ORDER BY time DESC LIMIT ?", strdatetime, strtype, limit)
 	}
+	defer rows.Close()
 	if err == nil {
 		var str_type, str_name, str_articid, str_title, str_abstract, str_content, str_contenthtml, str_time, str_autor, str_imgname, str_imgurl string
 		var arrNewsInfo []NewsInfo
 		for rows.Next() == true {
-			rows.Scan(&str_type, &str_name, &str_articid, &str_title, &str_abstract, &str_content, &str_contenthtml, &str_time, &str_autor, &str_imgname, &str_imgurl)
+			rows.Scan(&str_type, &str_name, &str_articid, &str_title, &str_abstract, &str_content, &str_contenthtml, &str_time, &str_autor, &str_imgurl)
 			var tmpnews NewsInfo
 			tmpnews.Type = str_type
 			tmpnews.Name = str_name
@@ -165,6 +168,7 @@ func GetNewsInfo(strtype string, strdatetime string, limit string, direction str
 		jsdata["retmsg"] = "success"
 		jsdata["data"] = arrNewsInfo
 	} else {
+		fmt.Println(err)
 		jsdata["retcode"] = ret_fail
 		jsdata["retmsg"] = "fail"
 	}
@@ -187,12 +191,13 @@ func GetNewsInfoById(strid string) map[string]interface{} {
 	if strid == "" {
 		err = errors.New("strid is empty")
 	}
-	rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgname,imgurl FROM "+tb_jinshinews+" where articid = ? ORDER BY time DESC LIMIT 2", strid)
+	rows, err = dbnews.Query("SELECT type,`name`,articid,title,abstract,content,contenthtml,time,autor,imgurl FROM "+tb_jinshinews+" where articid = ? ORDER BY time DESC LIMIT 2", strid)
+	defer rows.Close()
 	if err == nil {
 		var str_type, str_name, str_articid, str_title, str_abstract, str_content, str_contenthtml, str_time, str_autor, str_imgname, str_imgurl string
 		var arrNewsInfo []NewsInfo
 		for rows.Next() == true {
-			rows.Scan(&str_type, &str_name, &str_articid, &str_title, &str_abstract, &str_content, &str_contenthtml, &str_time, &str_autor, &str_imgname, &str_imgurl)
+			rows.Scan(&str_type, &str_name, &str_articid, &str_title, &str_abstract, &str_content, &str_contenthtml, &str_time, &str_autor, &str_imgurl)
 			var tmpnews NewsInfo
 			tmpnews.Type = str_type
 			tmpnews.Name = str_name
@@ -211,6 +216,7 @@ func GetNewsInfoById(strid string) map[string]interface{} {
 		jsdata["retmsg"] = "success"
 		jsdata["data"] = arrNewsInfo
 	} else {
+		fmt.Println(err)
 		jsdata["retcode"] = ret_fail
 		jsdata["retmsg"] = "fail"
 	}
